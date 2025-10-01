@@ -164,14 +164,14 @@ static bool dispach_message(struct uwsc_client *cl)
         break;
 
     case UWSC_OP_PING:
-	if (cl->onping)
-		cl->onping(cl);
+        if (cl->onping)
+            cl->onping(cl);
         cl->send(cl, payload, frame->payloadlen, UWSC_OP_PONG);
         break;
 
     case UWSC_OP_PONG:
-	if (cl->onpong)
-		cl->onpong(cl);
+        if (cl->onpong)
+            cl->onpong(cl);
         cl->wait_pong = false;
         break;
 
