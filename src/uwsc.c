@@ -278,6 +278,7 @@ static void uwsc_parse(struct uwsc_client *cl)
 {
     struct buffer *rb = &cl->rb;
     int err = 0;
+    char * errbuf = NULL;
 
     do {
         int data_len = buffer_length(rb);
@@ -297,11 +298,19 @@ static void uwsc_parse(struct uwsc_client *cl)
             status_code = strtok(NULL, "\r\n");
 
             if (!version || strcmp(version, "HTTP/1.1")) {
+                if (version) {
+                    if (asprintf(&errbuf, "Invalid HTTP version: '%s'", version) < 0)
+                        errbuf = NULL;
+                }
                 err = UWSC_ERROR_INVALID_HEADER;
                 break;
             }
 
             if (!status_code || atoi(status_code) != 101) {
+                if (status_code) {
+                    if (asprintf(&errbuf, "Invalid status code: '%s'", status_code) < 0)
+                        errbuf = NULL;
+                }
                 err = UWSC_ERROR_INVALID_HEADER;
                 break;
             }
@@ -325,7 +334,9 @@ static void uwsc_parse(struct uwsc_client *cl)
     } while(!err);
 
     if (err)
-        uwsc_error(cl, err, "Invalid header");
+        uwsc_error(cl, err, errbuf ? errbuf : "Invalid header");
+    if (errbuf)
+        free(errbuf);
 }
 
 static int check_socket_state(struct uwsc_client *cl)
