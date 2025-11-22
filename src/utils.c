@@ -30,21 +30,15 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/random.h>
 
 #include "log.h"
 #include "utils.h"
 
 int get_nonce(uint8_t *dest, int len)
 {
-    FILE *fp;
-    size_t n;
-
-    fp = fopen("/dev/urandom", "r");
-    if (fp) {
-        n = fread(dest, len, 1, fp);
-        fclose(fp);
-        return n;
-    }
+    if (getrandom(dest, len, 0) == len)
+        return len;
 
     return -1;
 }
