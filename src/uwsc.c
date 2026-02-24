@@ -735,6 +735,8 @@ int uwsc_init(struct uwsc_client *cl, struct ev_loop *loop, const char *url,
             log_err("SSL session init fail\n");
             return -1;
         }
+
+        ssl_set_server_name(cl->ssl, host);
 #else
         log_err("SSL is not enabled at compile\n");
         uwsc_free(cl);
